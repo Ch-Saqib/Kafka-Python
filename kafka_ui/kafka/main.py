@@ -11,7 +11,7 @@ KAFKA_BROKER = "broker:19092"
 KAFKA_TOPIC = "Topic"
 KAFKA_CONSUMER_GROUP_ID = "Topic-consumer-group"
 
-class GamePlayersRegistration(SQLModel):
+class AddMessage(SQLModel):
     player_name: str
     age: int
     email: str
@@ -53,13 +53,13 @@ def hello():
 
 
 @app.post("/register-player")
-async def register_new_player(player_data: GamePlayersRegistration):
+async def register_new_player(data: AddMessage):
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BROKER)
 
     await producer.start()
 
     try:
-        await producer.send_and_wait(KAFKA_TOPIC, player_data.model_dump_json().encode('utf-8'))
+        await producer.send_and_wait(KAFKA_TOPIC, data.model_dump_json().encode('utf-8'))
     finally:
         await producer.stop()
 
