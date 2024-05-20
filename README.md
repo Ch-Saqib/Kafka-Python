@@ -330,7 +330,7 @@ async def register_new_player(player_data: GamePlayersRegistration):
 
 ```
 * Now Open Browser
-* Click This Link <a href="http://127.0.0.1:8000/docs"></a>
+* Click This Link <a href="http://127.0.0.1:8000/docs">Click</a>
 * Firstly Create Topic And Then Create message in Browser
 
 **I Hope You Create This And Enjoy It.**
