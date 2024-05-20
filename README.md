@@ -337,7 +337,7 @@ async def register_new_player(player_data: GamePlayersRegistration):
 
 **If You want to contact me .Dm me on Linkedin**
 ----------------------------------------------
-Linkedin: <a href="https://www.linkedin.com/in/saqib-imran-537759230/"></a>
+Linkedin: <a href="https://www.linkedin.com/in/saqib-imran-537759230/">Dm me</a>
 
 
 
