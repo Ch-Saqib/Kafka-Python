@@ -3,9 +3,9 @@
 
 **First You Can Create Poetry Project**
 ----------------------------------------------
- *Create Folder
- *Open Folder In CMD
- *Write This Command In Terminal 
+ * Create Folder
+ * Open Folder In CMD
+ * Write This Command In Terminal 
 ``
 poetry new .
 ``
