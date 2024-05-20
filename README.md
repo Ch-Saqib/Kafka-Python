@@ -228,13 +228,13 @@ docker compose up -d --build
 
 **Step 1 : Create Topic**
  <img src="img/Topic.jpg"/>
- <img src="Topic1.jpg"/>
+ <img src="img/Topic1.jpg"/>
 
 **Step 2 : Produce Message**
 
-<img src="Produce.jpg"/>
-<img src="Produce1.jpg"/>
-<img src="Produce2.jpg"/>
+<img src="img/Produce.jpg"/>
+<img src="img/Produce1.jpg"/>
+<img src="img/Produce2.jpg"/>
 
  
 * After the creation of Topic 
