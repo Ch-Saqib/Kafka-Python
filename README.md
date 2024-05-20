@@ -227,7 +227,7 @@ docker compose up -d --build
 * Create Topic which you can create inn main.py file which name is "Topic"
 
 **Step 1 : Create Topic**
- <img src="Topic.jpg"/>
+ <img src="img/Topic.jpg"/>
  <img src="Topic1.jpg"/>
 
 **Step 2 : Produce Message**
