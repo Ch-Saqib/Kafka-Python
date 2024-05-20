@@ -231,7 +231,7 @@ docker compose up -d --build
 ```bash
 docker ps
 ```
-* Then See and Copy your 8000  container id 
+* Then See Apache Kafka Container id And Copy It 
 * Then Write the command in terminal
 ```bash
 docker logs container <id>
