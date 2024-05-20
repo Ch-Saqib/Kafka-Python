@@ -1,48 +1,66 @@
 from fastapi import FastAPI
-from aiokafka import AIOKafkaConsumer
-from contextlib import asynccontextmanager
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import asyncio
+from contextlib import asynccontextmanager
+from sqlmodel import SQLModel
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+KAFKA_BROKER = "broker:19092"
+KAFKA_TOPIC = "gamers"
+KAFKA_CONSUMER_GROUP_ID = "gamers-consumer-group"
+
+class GamePlayersRegistration(SQLModel):
+    player_name: str
+    age: int
+    email: str
+    phone_number: str
 
 
-KAFKA_TOPIC = "Topic"
-KAFKA_SERVER = "broker:19092"
-KAFKA_GROUP_ID = "group_id"
-
-
-async def consumer():
+async def consume():
+    # Milestone: CONSUMER INTIALIZE
     consumer = AIOKafkaConsumer(
         KAFKA_TOPIC,
-        bootstrap_servers=KAFKA_SERVER,
+        bootstrap_servers=KAFKA_BROKER
     )
-    # Get cluster layout and join group `my-group`
+
     await consumer.start()
     try:
-        # Consume messages
         async for msg in consumer:
-            print(
-                "consumed: ",
-                msg.topic,
-                msg.partition,
-                msg.offset,
-                msg.key,
-                msg.value,
-                msg.timestamp,
+            logging.info(
+                "{}:{:d}:{:d}: key={} value={} timestamp_ms={}".format(
+                    msg.topic, msg.partition, msg.offset, msg.key, msg.value,
+                    msg.timestamp)
             )
     finally:
-        # Will leave consumer group; perform autocommit if enabled.
         await consumer.stop()
 
+
 @asynccontextmanager
-def lifespan(app:FastAPI):
-    print("Create Connsumer")
-    asyncio.create_task(consumer())
-    print("Created")
+async def lifespan(app: FastAPI):
+    print("Starting consumer")
+    asyncio.create_task(consume())
     yield
+    print("Stopping consumer")
 
-
-app: FastAPI = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
-def index():
-    return {"message": "Hello World"}
+def hello():
+    return {"Hello": "World"}
+
+
+@app.post("/register-player")
+async def register_new_player(player_data: GamePlayersRegistration):
+    producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BROKER)
+
+    await producer.start()
+
+    try:
+        await producer.send_and_wait(KAFKA_TOPIC, player_data.model_dump_json().encode('utf-8'))
+    finally:
+        await producer.stop()
+
+    return player_data.model_dump_json() 
