@@ -8,8 +8,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 KAFKA_BROKER = "broker:19092"
-KAFKA_TOPIC = "gamers"
-KAFKA_CONSUMER_GROUP_ID = "gamers-consumer-group"
+KAFKA_TOPIC = "Topic"
+KAFKA_CONSUMER_GROUP_ID = "Topic-consumer-group"
 
 class GamePlayersRegistration(SQLModel):
     player_name: str
