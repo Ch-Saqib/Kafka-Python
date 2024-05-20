@@ -28,7 +28,7 @@ poetry new .
  * How to create docker file
  * First you can create file with specify name which is Dockerfile,Dockerfile.dev etc
  * Second if you dont't know how to write docker file thennn copy below code
-------------------------------------------------------------------------
+
  ```bash
  FROM python:3.12-slim
 
@@ -56,7 +56,7 @@ CMD [ "poetry","run","uvicorn","kafka.main:app","--host","0.0.0.0","--reload" ]
  * First you can create file with specify name which is docker-compose.yml,docker-compose.yml,docker-compose.yaml etc
  * yml or yaml is same 
  * Second if you donn't know how to write compose file ,You can copy below code
----------------------------------------------------------
+
  ```bash
  version: '3.12'
 
@@ -86,6 +86,7 @@ services:
  ```
  * After This,Open Your Terminal
  * Write The Below Command in your terminal
+
  ```bash
  docker compose up
  ```
