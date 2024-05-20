@@ -1,10 +1,11 @@
 # Kafka-Python
+---------------------------------------
 
 **First You Can Create Poetry Project**
 ----------------------------------------------
- * Create Folder
- * Open Folder In CMD
- * Write This Command In Terminal 
+ *Create Folder
+ *Open Folder In CMD
+ *Write This Command In Terminal 
 ``
 poetry new .
 ``
@@ -199,6 +200,7 @@ def lifespan(app:FastAPI):
     print("Created")
     yield
 
+
 app: FastAPI = FastAPI(lifespan=lifespan)
 
 
@@ -215,5 +217,24 @@ def index():
 ```bash
 docker compose up -d --build
 ```
+
+* Then Open Kafka Ui 
+* Open Browser and Write localhost:8080
+* Then Kafka UI Open,Then Click On Topic 
+* Create Topic which you can create inn main.py file which name is "Topic"
+* After the creation of Topic 
+* Produce message 
+* Click on Produce Message And Then Write Message
+* Then Open Your Terminal After the Produce of Message
+* Write The Below Command
+```bash
+docker ps
+```
+* Then See and Copy your 8000  container id 
+* Then Write the command in terminal
+```bash
+docker logs container <id>
+```
+* Then You Can See Your Message in Terminal
 
  
