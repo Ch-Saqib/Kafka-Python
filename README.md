@@ -7,9 +7,9 @@
  * Open Folder In CMD
  * Write This Command In Terminal
 
-``bash
+```bash
 poetry new .
-``
+```
 
  * It create project in your folder
 
