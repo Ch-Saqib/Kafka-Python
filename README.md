@@ -223,6 +223,7 @@ docker compose up -d --build
 * Open Browser and Write localhost:8080
 * Then Kafka UI Open,Then Click On Topic 
 * Create Topic which you can create inn main.py file which name is "Topic"
+<img src="Topic.jpg"/>
 * After the creation of Topic 
 * Produce message 
 * Click on Produce Message And Then Write Message
