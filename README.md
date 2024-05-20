@@ -5,10 +5,12 @@
 ----------------------------------------------
  * Create Folder
  * Open Folder In CMD
- * Write This Command In Terminal 
-``
+ * Write This Command In Terminal
+
+``bash
 poetry new .
 ``
+
  * It create project in your folder
 
 **Second Step You Can Add Packages**
@@ -223,6 +225,7 @@ docker compose up -d --build
 * Open Browser and Write localhost:8080
 * Then Kafka UI Open,Then Click On Topic 
 * Create Topic which you can create inn main.py file which name is "Topic"
+
 **Step 1 : Create Topic**
  <img src="Topic.jpg"/>
  <img src="Topic1.jpg"/>
@@ -230,6 +233,9 @@ docker compose up -d --build
 **Step 2 : Produce Message**
 
 <img src="Produce.jpg"/>
+<img src="Produce1.jpg"/>
+<img src="Produce2.jpg"/>
+
  
 * After the creation of Topic 
 * Produce message 
