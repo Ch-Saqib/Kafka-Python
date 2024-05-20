@@ -49,7 +49,7 @@ RUN poetry install
 CMD [ "poetry","run","uvicorn","kafka.main:app","--host","0.0.0.0","--reload" ]
 ```
 
------------------------------------------------------
+
 **Third Step Create compose file**
 --------------------------------------------------------
  * If you don't know how to create .Don't Worry
@@ -69,7 +69,7 @@ services:
        - 8000:8000
 ```
 
-----------------------------------------------------
+
 
  * Then you can create file your first folder,which is create on the behalf of your foldername
  * In Folder you can  create python file ,with the name of main.
