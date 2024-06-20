@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
+from contextlib import asynccontextmanager
 from sqlmodel import Field, SQLModel
-from typing import List, Optional
+from typing import Optional, AsyncGenerator
 import todo_pb2
+import asyncio
 
 
 class Todo(SQLModel, table=True):
@@ -33,7 +34,8 @@ async def consume(topic: str, bootstrap_servers: str):
         await consumer.stop()
 
 
-def lifespan(app: FastAPI):
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator:
     print("Consumer Start ....")
     asyncio.create_task(consume(topic="todos", bootstrap_servers="broker:19092"))
     yield
