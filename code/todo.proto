@@ -1,0 +1,6 @@
+syntax  = "proto3";
+
+message Todo_Proto{
+    string  name = 1;
+    string description = 2;
+}

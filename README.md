@@ -64,15 +64,17 @@ CMD [ "poetry","run","uvicorn","kafka.main:app","--host","0.0.0.0","--reload" ]
  * Second if you donn't know how to write compose file ,You can copy below code
 
  ```bash
- version: '3.12'
+version: "3.8"
 
 services:
-   my-api:
+   api:
      build:
-       context: ./kafka_ui
-       dockerfile: Dockerfile
+        context: ./code
+        dockerfile: Dockerfile
      ports:
        - 8000:8000
+     volumes:
+       - ./code:/app
 ```
 
 
@@ -113,19 +115,18 @@ services:
 ```bash
 version: "3.8"
 
-services:
-  gamer:
-    image: "myapi-img"
-    container_name: "myapi-container"
-    build:
-      context: ./kafka_ui
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./kafka_ui:/app"
 
-  broker:
+services:
+   api:
+     build:
+        context: ./code
+        dockerfile: Dockerfile
+     ports:
+       - 8000:8000
+     volumes:
+       - ./code:/app
+
+   broker:
     image: apache/kafka:3.7.0
     hostname: broker
     container_name: broker
@@ -147,7 +148,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
 
-  kafka-ui:
+   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
     ports:
@@ -176,16 +177,11 @@ from aiokafka import AIOKafkaConsumer
 from contextlib import asynccontextmanager
 import asyncio
 
-
-KAFKA_TOPIC = "Topic"
-KAFKA_SERVER = "broker:19092"
-KAFKA_GROUP_ID = "group_id"
-
-
-async def consumer():
+async def consume(topic: str, bootstrap_servers: str):
     consumer = AIOKafkaConsumer(
-        KAFKA_TOPIC,
-        bootstrap_servers=KAFKA_SERVER,
+        topic,
+        bootstrap_servers=bootstrap_servers,
+        group_id="my-group",
     )
     # Get cluster layout and join group `my-group`
     await consumer.start()
@@ -261,6 +257,7 @@ docker logs container <id>
 ```
 * Then You Can See Your Message in Terminal
 * Then You Can Create Producer Api
+
 ```python
 from fastapi import FastAPI
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -271,24 +268,17 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-KAFKA_BROKER = "broker:19092"
-KAFKA_TOPIC = "gamers"
-KAFKA_CONSUMER_GROUP_ID = "gamers-consumer-group"
+class Todo(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    description: str
 
-class GamePlayersRegistration(SQLModel):
-    player_name: str
-    age: int
-    email: str
-    phone_number: str
-
-
-async def consume():
-    # Milestone: CONSUMER INTIALIZE
+async def consume(topic: str, bootstrap_servers: str):
     consumer = AIOKafkaConsumer(
-        KAFKA_TOPIC,
-        bootstrap_servers=KAFKA_BROKER
+        topic,
+        bootstrap_servers=bootstrap_servers,
+        group_id="my-group",
     )
-
     await consumer.start()
     try:
         async for msg in consumer:
@@ -316,29 +306,124 @@ def hello():
     return {"Hello": "World"}
 
 
-@app.post("/register-player")
-async def register_new_player(player_data: GamePlayersRegistration):
-    producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BROKER)
-
+@app.post("/add_data")
+async def add_data_kafka(todo: Todo):
+    producer = AIOKafkaProducer(bootstrap_servers="broker:19092")
+    # Get cluster layout and initial topic/partition leadership information
     await producer.start()
-
     try:
-        await producer.send_and_wait(KAFKA_TOPIC, player_data.model_dump_json().encode('utf-8'))
+        # Produce message
+        await producer.send_and_wait("todos", todo.model_dump_json().encode("utf-8"))
     finally:
+        # Wait for all pending messages to be delivered or expire.
         await producer.stop()
+    return todo.model_dump_json()
 
-    return player_data.model_dump_json() 
 
 ```
 * Now Open Browser
 * Click This Link <a href="http://127.0.0.1:8000/docs">Click</a>
 * Firstly Create Topic And Then Create message in Browser
 
-**I Hope You Create This And Enjoy It.**
 
-**If You want to contact me .Dm me on Linkedin**
-----------------------------------------------
-Linkedin: <a href="https://www.linkedin.com/in/saqib-imran-537759230/">Dm me</a>
+
+**Use of ProtoBuf**
+*  First Create Proto File
+```java
+syntax  = "proto3";
+
+message Todo_Proto{
+    string  name = 1;
+    string description = 2;
+}
+
+```
+* Build Image or Run Container
+* Enter in Container with the use of below command
+```bash
+docker exec -it container id /bin/bash
+```
+* Then Find Proto File
+* After Finding Copy Below Command And Convert Proto File Into Python
+```bash
+protoc --python_out=. proto file name
+```
+* Then Import File Where You can Use It
+
+
+```python
+from fastapi import FastAPI
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+import asyncio
+from sqlmodel import Field, SQLModel
+from typing import List, Optional
+import todo_pb2
+
+
+class Todo(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    description: str
+
+
+async def consume(topic: str, bootstrap_servers: str):
+    consumer = AIOKafkaConsumer(
+        topic,
+        bootstrap_servers=bootstrap_servers,
+        group_id="my-group",
+    )
+    # Get cluster layout and join group `my-group`
+    await consumer.start()
+    try:
+        # Consume messages
+        async for msg in consumer:
+            print("consumed: ", msg.value)
+            # Decrialized Data
+            get_data = todo_pb2.Todo_Proto()
+            get_data.ParseFromString(msg.value)
+            print(f"Decrialized Data : ", get_data)
+    finally:
+        # Will leave consumer group; perform autocommit if enabled.
+        await consumer.stop()
+
+
+def lifespan(app: FastAPI):
+    print("Consumer Start ....")
+    asyncio.create_task(consume(topic="todos", bootstrap_servers="broker:19092"))
+    yield
+
+
+app: FastAPI = FastAPI(lifespan=lifespan)
+
+
+@app.get("/")
+def get():
+    return {"message": "Hello World"}
+
+
+@app.post("/add_data")
+async def add_data_kafka(todo: Todo):
+    producer = AIOKafkaProducer(bootstrap_servers="broker:19092")
+    # Get cluster layout and initial topic/partition leadership information
+    await producer.start()
+    try:
+        add_data = todo_pb2.Todo_Proto(
+            name=todo.name,
+            description=todo.description,
+        )
+        # Serialize Data
+        protoc_data = add_data.SerializeToString()
+        print(f"Serialized Data : ", protoc_data)
+        # Produce message
+        await producer.send_and_wait(topic="todos", value=protoc_data)
+    finally:
+        # Wait for all pending messages to be delivered or expire.
+        await producer.stop()
+    return todo.model_dump_json()
+
+
+```
+**I Hope You Create This And Enjoy It.**
 
 
 
